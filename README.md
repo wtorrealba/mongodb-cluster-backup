@@ -28,28 +28,16 @@ In order to make it easy, the script is based on tested and existing tools like:
 Usage: backup.py [options]
 
 Options:
-  -h, --help
-            show the help message and exit
-  -s SERVER, --server=SERVER
-            mongos server that will be use as source of config.
-  -l PORT, --port=PORT
-            port where the mongos server is listening.
-  -u USER, --user=USER
-            user for establish the connection if mongo has authentication enabled.
-  -p PASSWORD, --password=PASSWORD
-            password for the user to establish the connection.
-  -a USERSSH, --userssh=USERSSH
-            user that will be use to establish the ssh connection to the secondaries. this user should be able to do SUDO
-  -k KEYSSH, --keyssh=KEYSSH
-            ssh private key to be use in the ssh connection.
-  -f, --nostop
-            this says if the balancer should not be stopped, if this parameter is given the tool assumes that the balancer is stopped.
-  -g, --nostart
-            this says if the balancer should not be started.
-  -d DBPATH, --dbpath=DBPATH
-            location of the data into the secondaries (mongod data path).
-  -o OUTPATH, --outpath=OUTPATH
-            location where the backup will be stored, a folder will be created inside this path for current backup.
-  -r, --directoryperdb
-            if this option is present indicates that the mongo data nodes are using the --directoryperdb option.
+  * -h, --help, show the help message and exit
+  * -s SERVER, --server=SERVER, mongos server that will be use as source of config.
+  * -l PORT, --port=PORT, port where the mongos server is listening.
+  * -u USER, --user=USER, user for establish the connection if mongo has authentication enabled.
+  * -p PASSWORD, --password=PASSWORD, password for the user to establish the connection.
+  * -a USERSSH, --userssh=USERSSH, user that will be use to establish the ssh connection to the secondaries. this user should be able to do SUDO
+  * -k KEYSSH, --keyssh=KEYSSH, ssh private key to be use in the ssh connection.
+  * -f, --nostop, this says if the balancer should not be stopped, if this parameter is given the tool assumes that the balancer is stopped.
+  * -g, --nostart, this says if the balancer should not be started.
+  * -d DBPATH, --dbpath=DBPATH, location of the data into the secondaries (mongod data path).
+  * -o OUTPATH, --outpath=OUTPATH, location where the backup will be stored, a folder will be created inside this path for current backup.
+  * -r, --directoryperdb, if this option is present indicates that the mongo data nodes are using the --directoryperdb option.
 
