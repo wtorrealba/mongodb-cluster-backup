@@ -70,10 +70,10 @@ def backup_server(prefix,data,out,directorydb):
 	run('sudo '+mongodb_service+' stop')
 	run('sudo mkdir '+out+prefix)
 	run('sudo mongodump --journal --dbpath '+data+' --out '+out+prefix+'/'+modifiers)
+	run('sudo '+mongodb_service+' start')
 	run('sudo tar -cvf '+out+env.host+'.'+prefix+'.tar '+out+prefix+'/ ')
 	run('sudo rm -rf '+out+prefix+'/')
 	run('sudo gzip '+out+env.host+'.'+prefix+'.tar')
-	run('sudo '+mongodb_service+' start')
 
 	print "\tBackup for ",env.host," finished"
 
