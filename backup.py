@@ -4,10 +4,10 @@ from pymongo import MongoClient
 from fabric.api import run, settings, execute, task, env
 import datetime 
 
-# =================================================================================================
-# Function that create the connection to the mongos server to be use as primary 
-# source of information in order to pick the servers that will be stoppped for 
-# mongodump purpose
+# ============================================================================
+# Function that create the connection to the mongos server to be use as
+# primary source of information in order to pick the servers that will be
+# stoppped for mongodump purpose
 #
 def connect_server(host, port, user, password, verbose=False):
     try:
@@ -25,7 +25,7 @@ def connect_server(host, port, user, password, verbose=False):
         #raise e
     return connection
 
-# =================================================================================================
+# ============================================================================
 # Function that looks for the shards settings
 #
 def getShards(conn):
@@ -38,7 +38,7 @@ def getShards(conn):
         print "\tOops!  There was an error.  Try again..."
         print "\t",e
 
-# =================================================================================================
+# ============================================================================
 # From a replica set hosts list return the first secondary detected
 #
 def getSecondary(hosts_list, user, password):
@@ -49,7 +49,7 @@ def getSecondary(hosts_list, user, password):
             return host_info[0]
     return ""
 
-# =================================================================================================
+# ============================================================================
 # Execution of the required steps in the secondaries
 #
 def backup_server(prefix,data,out,directorydb):
@@ -75,16 +75,16 @@ def backup_server(prefix,data,out,directorydb):
 
     print "\tBackup for ",env.host," finished"
 
-# =================================================================================================
+# ============================================================================
 # Set the environment to call fabric task that makes the backup in each server 
 #
 def backup_servers(hosts_to_backup, prefix_backup, userssh, keyssh, dbpath, outpath, directoryperdb):
     with settings(parallel=True, user=userssh,key_filename=keyssh):
         execute(backup_server,hosts=hosts_to_backup,prefix=prefix_backup,data=dbpath,out=outpath,directorydb=directoryperdb)
 
-# =================================================================================================
-# use a connection to a mongos in order to stop the balancer and wait for any pending migration in 
-# progress
+# ============================================================================
+# use a connection to a mongos in order to stop the balancer and wait for any
+# pending migration in progress
 #
 def stopBalancer(conn):
     print ""
@@ -98,7 +98,7 @@ def stopBalancer(conn):
     print "\tBalancer stoppped"
     print ""
 
-# =================================================================================================
+# ============================================================================
 # use a connection to a mongos in order to start the balancer
 #
 def startBalancer(conn):
@@ -111,8 +111,8 @@ def startBalancer(conn):
     print ""
 
 
-# ================================================================================
-# ================================================================================
+# ============================================================================
+# ============================================================================
 def main():
     #
     # Getting the parameters for the mongos connection.
