@@ -4,7 +4,6 @@ from pymongo import MongoClient
 from fabric.api import run, settings, execute, task, env
 import datetime 
 
-
 # =================================================================================================
 # Function that create the connection to the mongos server to be use as primary 
 # source of information in order to pick the servers that will be stoppped for 
@@ -39,7 +38,6 @@ def getShards(conn):
         print "\tOops!  There was an error.  Try again..."
         print "\t",e
 
-
 # =================================================================================================
 # From a replica set hosts list return the first secondary detected
 #
@@ -56,7 +54,7 @@ def getSecondary(hosts_list, user, password):
 #
 def backup_server(prefix,data,out,directorydb):
     print "\tStarting backup for ",env.host
-    
+
     mongodb_service = run('ls -t /etc/init.d/mongo* | awk \'{print $1;exit}\'',True)
 
     if not data[-1]=='/':
@@ -66,7 +64,7 @@ def backup_server(prefix,data,out,directorydb):
     modifiers = ''
     if directorydb:
         modifiers = modifiers+' --directoryperdb '
-    
+
     run('sudo '+mongodb_service+' stop')
     run('sudo mkdir '+out+prefix)
     run('sudo mongodump --journal --dbpath '+data+' --out '+out+prefix+'/'+modifiers)
@@ -77,14 +75,12 @@ def backup_server(prefix,data,out,directorydb):
 
     print "\tBackup for ",env.host," finished"
 
-
 # =================================================================================================
 # Set the environment to call fabric task that makes the backup in each server 
 #
 def backup_servers(hosts_to_backup, prefix_backup, userssh, keyssh, dbpath, outpath, directoryperdb):
     with settings(parallel=True, user=userssh,key_filename=keyssh):
         execute(backup_server,hosts=hosts_to_backup,prefix=prefix_backup,data=dbpath,out=outpath,directorydb=directoryperdb)
-
 
 # =================================================================================================
 # use a connection to a mongos in order to stop the balancer and wait for any pending migration in 
@@ -102,7 +98,6 @@ def stopBalancer(conn):
     print "\tBalancer stoppped"
     print ""
 
-
 # =================================================================================================
 # use a connection to a mongos in order to start the balancer
 #
@@ -114,8 +109,8 @@ def startBalancer(conn):
 
     print "\tBalancer started"
     print ""
-    
-    
+
+
 # =================================================================================================
 # =================================================================================================
 def main():
@@ -134,8 +129,6 @@ def main():
     p.add_option('--dbpath', '-d', default="", help="location of the data into the secondaries (mongod data path)." )
     p.add_option('--outpath', '-o', default="", help="location where the backup will be stored, a folder will be created inside this path for current backup." )
     p.add_option('--directoryperdb', '-r', action="store_true", default=False, help="if this option is present indicates that the mongo data nodes are using the --directoryperdb option." )
-    
-
 
     options, arguments = p.parse_args()
     if options.userssh=="" or options.keyssh=="" or options.dbpath=="" or options.outpath=="":
@@ -150,14 +143,12 @@ def main():
     connection = connect_server(options.server, options.port, options.user, options.password, True)
     print ""
 
-
     #
     # Getting sharding information
     #
     print "Getting sharding configuration"
     shards = getShards(connection)
     print ""
-
 
     #
     # Getting the secondaries list
@@ -192,7 +183,7 @@ def main():
 
     if not options.nostop:
         stopBalancer(connection)
-    
+
     backup_servers(hosts_to_backup, prefix_backup, options.userssh, options.keyssh, options.dbpath, options.outpath,options.directoryperdb)
 
     if not options.nostart:
@@ -202,6 +193,6 @@ def main():
     print ""
 
     print ""
- 
+
 if __name__ == '__main__':
     main()
