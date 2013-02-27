@@ -15,7 +15,7 @@ def connect_server(host, port, user, password, verbose=False):
             auth = "mongodb://" + user + ":" + password + "@"
         else:
             auth=""
-        connection = MongoClient(auth+host,port)
+        connection = MongoClient(auth + host,port)
         if verbose:
             print "Connected to ", host, " on port ",port, "..."
 
@@ -44,7 +44,7 @@ def getShards(conn):
 def getSecondary(hosts_list, user, password):
     for h in hosts_list.split(","):
         host_info = h.split(":")
-        c = connect_server(host_info[0],int(host_info[1]),user,password)
+        c = connect_server(host_info[0], int(host_info[1]), user,password)
         if not c.is_primary:
             return host_info[0]
     return ""
@@ -52,35 +52,38 @@ def getSecondary(hosts_list, user, password):
 # ============================================================================
 # Execution of the required steps in the secondaries
 #
-def backup_server(prefix,data,out,directorydb):
+def backup_server(prefix, data, out, directorydb):
     print "\tStarting backup for ",env.host
 
-    mongodb_service = run('ls -t /etc/init.d/mongo* | awk \'{print $1;exit}\'',True)
+    mongodb_service = run('ls -t /etc/init.d/mongo* | awk \'{print $1;exit}\'', True)
 
     if not data[-1]=='/':
-        data = data+'/'
+        data = data + '/'
     if not out[-1]=='/':
-        out = out+'/'
+        out = out + '/'
     modifiers = ''
     if directorydb:
-        modifiers = modifiers+' --directoryperdb '
+        modifiers = modifiers + ' --directoryperdb '
 
-    run('sudo '+mongodb_service+' stop')
-    run('sudo mkdir '+out+prefix)
-    run('sudo mongodump --journal --dbpath '+data+' --out '+out+prefix+'/'+modifiers)
-    run('sudo '+mongodb_service+' start')
-    run('sudo tar -cvf '+out+env.host+'.'+prefix+'.tar '+out+prefix+'/ ')
-    run('sudo rm -rf '+out+prefix+'/')
-    run('sudo gzip '+out+env.host+'.'+prefix+'.tar')
+    run('sudo ' + mongodb_service + ' stop')
+    run('sudo mkdir ' + out + prefix)
+    run('sudo mongodump --journal --dbpath ' + data + ' --out ' + out +
+        prefix + '/' + modifiers)
+    run('sudo ' + mongodb_service + ' start')
+    run('sudo tar -cvf ' + out+env.host + '.' + prefix + '.tar ' +
+        out + prefix + '/ ')
+    run('sudo rm -rf ' + out + prefix + '/')
+    run('sudo gzip ' + out + env.host + '.' + prefix + '.tar')
 
-    print "\tBackup for ",env.host," finished"
+    print "\tBackup for ", env.host, " finished"
 
 # ============================================================================
 # Set the environment to call fabric task that makes the backup in each server 
 #
 def backup_servers(hosts_to_backup, prefix_backup, userssh, keyssh, dbpath, outpath, directoryperdb):
-    with settings(parallel=True, user=userssh,key_filename=keyssh):
-        execute(backup_server,hosts=hosts_to_backup,prefix=prefix_backup,data=dbpath,out=outpath,directorydb=directoryperdb)
+    with settings(parallel=True, user=userssh, key_filename=keyssh):
+        execute(backup_server, hosts=hosts_to_backup, prefix=prefix_backup,
+                data=dbpath, out=outpath, directorydb=directoryperdb)
 
 # ============================================================================
 # use a connection to a mongos in order to stop the balancer and wait for any
@@ -90,9 +93,9 @@ def stopBalancer(conn):
     print ""
     print "\tStopping balancer"
     db = conn.config
-    db.settings.update( { "_id": "balancer" }, { "$set": { "stopped": True } } );
+    db.settings.update({"_id": "balancer"}, {"$set": {"stopped": True}});
     balancer_info = db.locks.find_one({"_id": "balancer"})
-    while int(str(balancer_info["state"]))>0:
+    while int(str(balancer_info["state"])) > 0:
         print "\t\twaiting for migration"
         balancer_info = db.locks.find_one({"_id": "balancer"})
     print "\tBalancer stoppped"
@@ -105,11 +108,10 @@ def startBalancer(conn):
     print ""
     print "\tStarting balancer"
     db = conn.config
-    db.settings.update( { "_id": "balancer" }, { "$set": { "stopped": False } } );
+    db.settings.update({"_id": "balancer"}, {"$set": {"stopped": False}});
 
     print "\tBalancer started"
     print ""
-
 
 # ============================================================================
 # ============================================================================
