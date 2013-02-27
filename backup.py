@@ -111,36 +111,55 @@ def startBalancer(conn):
     print ""
 
 
-# =================================================================================================
-# =================================================================================================
+# ================================================================================
+# ================================================================================
 def main():
     #
     # Getting the parameters for the mongos connection.
     #
     p = optparse.OptionParser()
-    p.add_option('--server', '-s', default="localhost", help="mongos server that will be use as source of config." )
-    p.add_option('--port', '-l', default=27017, help="port where the mongos server is listening." )
-    p.add_option('--user', '-u', default="", help="user for establish the connection if mongo has authentication enabled." )
-    p.add_option('--password', '-p', default="", help="password for the user to establish the connection." )
-    p.add_option('--userssh', '-a', default="", help="user that will be use to establish the ssh connection to the secondaries. this user should be able to do SUDO" )
-    p.add_option('--keyssh', '-k', default="", help="ssh private key to be use in the ssh connection." )
-    p.add_option('--nostop', '-f', action="store_true", default=False, help="this says if the balancer should not be stopped, if this parameter is given the tool assumes that the balancer is stopped." )
-    p.add_option('--nostart', '-g', action="store_true", default=False, help="this says if the balancer should not be started." )
-    p.add_option('--dbpath', '-d', default="", help="location of the data into the secondaries (mongod data path)." )
-    p.add_option('--outpath', '-o', default="", help="location where the backup will be stored, a folder will be created inside this path for current backup." )
-    p.add_option('--directoryperdb', '-r', action="store_true", default=False, help="if this option is present indicates that the mongo data nodes are using the --directoryperdb option." )
+    p.add_option('--server', '-s', default="localhost",
+                 help="mongos server that will be use as source of config.")
+    p.add_option('--port', '-l', default=27017,
+                 help="port where the mongos server is listening.")
+    p.add_option('--user', '-u', default="",
+                 help="user for establish the connection if mongo has authentication enabled.")
+    p.add_option('--password', '-p', default="",
+                 help="password for the user to establish the connection.")
+    p.add_option('--userssh', '-a', default="",
+                 help=" ".join(["user that will be use to establish the ssh",
+                                "connection to the secondaries. this user",
+                                "should be able to do SUDO"]))
+    p.add_option('--keyssh', '-k', default="",
+                 help="ssh private key to be use in the ssh connection.")
+    p.add_option('--nostop', '-f', action="store_true", default=False,
+                 help=" ".join(["this says if the balancer should not be",
+                                "stopped, if this parameter is given the tool",
+                                "assumes that the balancer is stopped."]))
+    p.add_option('--nostart', '-g', action="store_true", default=False,
+                 help="this says if the balancer should not be started.")
+    p.add_option('--dbpath', '-d', default="",
+                 help="location of the data into the secondaries (mongod data path).")
+    p.add_option('--outpath', '-o', default="",
+                 help=" ".join(["location where the backup will be stored,",
+                                "a folder will be created inside this path",
+                                "for current backup."]))
+    p.add_option('--directoryperdb', '-r', action="store_true", default=False,
+                 help=" ".join(["if this option is present indicates that the",
+                                "mongo data nodes are using the --directoryperdb option."]))
 
     options, arguments = p.parse_args()
     if options.userssh=="" or options.keyssh=="" or options.dbpath=="" or options.outpath=="":
-        print "Oops!  There was an error, check the ssh parameters and then try again..."
+        print "Oops! There was an error, check the ssh parameters and then try again..."
         print "try using the -h option."
         exit()
 
     #
     # Creating connection to mongos server
     #
-    print "Connecting to mongos server ",options.server
-    connection = connect_server(options.server, options.port, options.user, options.password, True)
+    print "Connecting to mongos server ", options.server
+    connection = connect_server(options.server, options.port, options.user,
+                                options.password, True)
     print ""
 
     #
@@ -156,16 +175,16 @@ def main():
     hosts_to_backup = []
     for s in shards:
         hosts = str(s["host"])
-        hosts = hosts.replace(str(s["_id"]),"").strip()
-        hosts = hosts.replace("/","").strip()
-        print "Getting secondary from hosts in ",hosts
-        h = getSecondary(hosts,options.user, options.password)
+        hosts = hosts.replace(str(s["_id"]), "").strip()
+        hosts = hosts.replace("/", "").strip()
+        print "Getting secondary from hosts in ", hosts
+        h = getSecondary(hosts, options.user, options.password)
         hosts_to_backup.append(h)
         #print h
 
     print ""
     print "Secondaries to be stopped"
-    print "\t",hosts_to_backup
+    print "\t", hosts_to_backup
     print ""
 
     #
@@ -173,7 +192,6 @@ def main():
     #
     today = datetime.datetime.now()
     prefix_backup = str(today.strftime("%Y%m%d%H%M%S"))
-    
 
     #
     # Backing up servers.
@@ -184,7 +202,9 @@ def main():
     if not options.nostop:
         stopBalancer(connection)
 
-    backup_servers(hosts_to_backup, prefix_backup, options.userssh, options.keyssh, options.dbpath, options.outpath,options.directoryperdb)
+    backup_servers(hosts_to_backup, prefix_backup, options.userssh,
+                   options.keyssh, options.dbpath, options.outpath,
+                   options.directoryperdb)
 
     if not options.nostart:
         startBalancer(connection)
